@@ -1,0 +1,45 @@
+// VerilogA for my_Grad_proJ, Hybrid_model, veriloga
+
+`include "constants.vams"
+`include "disciplines.vams"
+
+module Hybrid_model(Es_mag,Es_phase, Elo_mag , Elo_phase ,E1_real, E1_img, E2_real, E2_img ,E3_real,E3_img , E4_real,E4_img);
+input	Es_mag,Es_phase, Elo_mag , Elo_phase ;
+output  E1_real, E1_img, E2_real, E2_img ,E3_real ,E3_img , E4_real,E4_img ;
+electrical Es_mag,Es_phase, Elo_mag , Elo_phase ,  E1_real, E1_img, E2_real, E2_img ,E3_real,E3_img , E4_real,E4_img;
+parameter real phase_err_degree= 0 ;
+parameter real amplitude_error = 0;
+ 
+real Es_real , Es_img , Elo_real , Elo_img ;
+real Elo_real_J, Elo_img_J;
+real phase_J;
+real phase_err;
+
+   analog begin
+
+      Es_real = V(Es_mag)*cos(V(Es_phase));
+      Es_img = V(Es_mag)*sin(V(Es_phase));
+	  Elo_real = V(Elo_mag)*cos(V(Elo_phase));
+      Elo_img = V(Elo_mag)*sin(V(Elo_phase));
+	  phase_err = (phase_err_degree/180)*(`M_PI);
+	  phase_J = V(Elo_phase) + (`M_PI/2) + phase_err ;
+   	  Elo_real_J = V(Elo_mag)*cos( phase_J )*(1-amplitude_error);
+      Elo_img_J = V(Elo_mag)*sin( phase_J )*(1-amplitude_error);
+	  
+/////////getting real and imajinary components of E1,2,3,4:
+
+	  V(E1_real) <+ 0.5*(Es_real + Elo_real);
+	  V(E1_img) <+ 0.5*(Es_img + Elo_img);
+
+	  V(E2_real) <+ 0.5*(Es_real - Elo_real);
+	  V(E2_img) <+ 0.5*(Es_img - Elo_img);
+
+	  V(E3_real) <+ 0.5*(Es_real + Elo_real_J);
+	  V(E3_img) <+ 0.5*(Es_img + Elo_img_J);
+
+	  V(E4_real) <+ 0.5*(Es_real - Elo_real_J);
+	  V(E4_img) <+ 0.5*(Es_img - Elo_img_J);
+
+   end
+
+endmodule
